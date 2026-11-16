@@ -27,31 +27,29 @@ I file principali sono:
 - `tests/`: contiene i test automatici.
 - `monitoring/`: contiene le configurazioni di Prometheus e Grafana.
 - `jenkins-local/`: contiene i file per avviare Jenkins in locale.
-- `screenshots/`: contiene le immagini del monitoraggio.
+- `screenshots/`: contiene le immagini del monitoraggio e di Jenkins.
 
 ## Architettura del progetto
 
-Il progetto utilizza GitHub per il versionamento del codice e Jenkins per automatizzare build, test e deploy.
+Il progetto utilizza GitHub per il versionamento del codice e Jenkins per automatizzare le operazioni di build, test e deploy.
 
-L'applicazione viene eseguita tramite Docker e utilizza Prometheus e Grafana per il monitoraggio.
+L'applicazione viene eseguita tramite Docker, mentre Prometheus e Grafana vengono utilizzati per il monitoraggio.
 
 ```text
-              GitHub
-                 |                
-              Jenkins
-        Build -> Test -> Deploy
-                 |
-               Docker
-                 |
-              FastAPI
-                 |
-       Modello Sentiment Analysis
-                 |
-              /metrics
-                 |
-             Prometheus
-                 |
-              Grafana
+GitHub
+   |
+Jenkins
+Build -> Test -> Deploy
+   |
+Docker
+   |
+FastAPI -> Modello Sentiment Analysis
+   |
+/metrics
+   |
+Prometheus
+   |
+Grafana
 ```
 
 ## Avvio del progetto
@@ -70,7 +68,25 @@ Una volta avviati i container, i servizi sono disponibili ai seguenti indirizzi:
 - **Prometheus:** http://localhost:9090/targets
 - **Grafana:** http://localhost:3000
 
-Per fermare i container:
+Per verificare i container:
+
+```bash
+docker compose ps
+```
+
+Per controllare i log dell'applicazione:
+
+```bash
+docker compose logs app
+```
+
+Per riavviare il servizio:
+
+```bash
+docker compose restart app
+```
+
+Per fermare tutti i container:
 
 ```bash
 docker compose down
@@ -127,9 +143,9 @@ La pipeline è definita nel file `Jenkinsfile` e prevede tre fasi:
 2. **Test:** esegue i test automatici.
 3. **Deploy:** aggiorna il servizio se i test vengono superati.
 
-La pipeline è predisposta per controllare periodicamente i nuovi commit su GitHub.
+Jenkins controlla periodicamente GitHub, circa ogni 2 minuti, per verificare la presenza di nuovi commit.
 
-Sono previste anche notifiche in caso di successo o errore, tramite email.
+Quando viene rilevato un nuovo commit, la pipeline parte automaticamente.
 
 ### Avvio di Jenkins
 
@@ -154,9 +170,27 @@ Per collegare Jenkins al progetto:
 5. Indicare `Jenkinsfile` come percorso dello script.
 6. Salvare e avviare la prima esecuzione.
 
-Il Jenkinsfile contiene anche il controllo periodico dei nuovi commit.
+### Notifiche email
 
-Per le notifiche email è necessario configurare SMTP in Jenkins e impostare il parametro `EMAIL_NOTIFICHE` della pipeline.
+La pipeline prevede l'invio di notifiche email in caso di successo o errore.
+
+Per utilizzare le notifiche è necessario configurare il server SMTP in Jenkins.
+
+Il destinatario può essere inserito nel parametro `EMAIL_NOTIFICHE` oppure impostato nella variabile globale `EMAIL_DESTINATARIO`.
+
+In questo modo le notifiche vengono inviate anche quando la pipeline parte automaticamente.
+
+### Verifica della pipeline
+
+La pipeline è stata verificata in locale.
+
+Jenkins ha rilevato automaticamente un nuovo commit su GitHub ed eseguito correttamente tutte le fasi.
+
+I 7 test sono stati superati e il container dell'applicazione è stato aggiornato.
+
+È stato verificato anche l'invio automatico della notifica email di successo. La notifica in caso di errore è configurata nel Jenkinsfile.
+
+![Pipeline Jenkins](screenshots/jenkins.png)
 
 ## Monitoraggio
 
@@ -207,7 +241,7 @@ Il repository pubblico del progetto è:
 
 https://github.com/giuseppe12devops/sentiment-devops
 
-Il repository viene utilizzato per versionare il codice e collegarlo alla pipeline Jenkins.
+Il repository contiene il codice, i file di configurazione e la documentazione del progetto.
 
 ## Conclusione
 
@@ -215,4 +249,4 @@ Con questo progetto ho utilizzato gli strumenti DevOps affrontati durante il cor
 
 Il servizio è stato realizzato con FastAPI e Docker, verificato tramite test automatici e monitorato con Prometheus e Grafana.
 
-La pipeline Jenkins è predisposta per automatizzare le operazioni di build, test e deploy del servizio.
+Con Jenkins sono state automatizzate le operazioni di build, test e deploy, insieme alle notifiche sul risultato della pipeline.
