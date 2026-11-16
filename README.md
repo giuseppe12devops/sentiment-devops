@@ -67,7 +67,7 @@ docker compose up -d --build
 Una volta avviati i container, i servizi sono disponibili ai seguenti indirizzi:
 
 - **FastAPI:** http://localhost:8000/docs
-- **Prometheus:** http://localhost:9090
+- **Prometheus:** http://localhost:9090/targets
 - **Grafana:** http://localhost:3000
 
 Per fermare i container:
