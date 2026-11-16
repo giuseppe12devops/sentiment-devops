@@ -37,8 +37,9 @@ pipeline {
         success {
             echo 'Build, test e deploy completati'
             script {
-                if (params.EMAIL_NOTIFICHE?.trim()) {
-                    mail to: params.EMAIL_NOTIFICHE,
+                def email = params.EMAIL_NOTIFICHE?.trim() ?: env.EMAIL_DESTINATARIO?.trim()
+                if (email) {
+                    mail to: email,   
                          subject: "OK - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                          body: "La pipeline è terminata correttamente. ${env.BUILD_URL}"
                 }
@@ -47,8 +48,9 @@ pipeline {
         failure {
             echo 'Pipeline fallita. Controlla i log di Jenkins.'
             script {
-                if (params.EMAIL_NOTIFICHE?.trim()) {
-                    mail to: params.EMAIL_NOTIFICHE,
+                def email = params.EMAIL_NOTIFICHE?.trim() ?: env.EMAIL_DESTINATARIO?.trim()
+                if (email) {
+                    mail to: email, 
                          subject: "ERRORE - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                          body: "La pipeline è fallita. ${env.BUILD_URL}"
                 }
